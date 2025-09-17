@@ -14,7 +14,7 @@ class UserProfile(BaseModel):
     weight_kg: float
     gender: str
     brand: str
-    category: str   # e.g., "tshirt", "jeans"
+    category: str 
 
 
 class RecommendationResponse(BaseModel):
@@ -50,10 +50,8 @@ def recommend_size(user: UserProfile) -> RecommendationResponse:
 
     bmi = user.weight_kg / ((user.height_cm / 100) ** 2)
 
-    # Rule-based: map BMI to weight-range buckets
     for size, (low, high) in chart.items():
         if low <= user.weight_kg < high:
-            # Confidence decreases if BMI is too far from average
             avg = (low + high) / 2
             confidence = 1 - abs(user.weight_kg - avg) / (high - low)
             return RecommendationResponse(recommended_size=size, confidence=round(confidence, 2))
