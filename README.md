@@ -1,4 +1,4 @@
-# 👕 Size / Fit Recommendation Service
+#  Size / Fit Recommendation Service
 
 A minimal **FastAPI microservice** that recommends clothing sizes 
 based on user profile (height, weight, gender, brand, category).  
@@ -7,7 +7,7 @@ where improving fit reduces product returns and enhances customer experience.
 
 ---
 
-## 🚀 Features
+##  Features
 - REST API (`/recommend`) for size prediction
 - Rule-based recommendation using brand-specific charts
 - Confidence score for predictions
