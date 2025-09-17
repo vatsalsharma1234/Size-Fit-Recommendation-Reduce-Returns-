@@ -1,0 +1,74 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
+import numpy as np
+
+app = FastAPI(
+    title="Size/Fit Recommendation Service",
+    description="MVP microservice to recommend clothing size based on user + product profile",
+    version="0.1"
+)
+
+
+class UserProfile(BaseModel):
+    height_cm: float
+    weight_kg: float
+    gender: str
+    brand: str
+    category: str   # e.g., "tshirt", "jeans"
+
+
+class RecommendationResponse(BaseModel):
+    recommended_size: str
+    confidence: float
+
+
+
+brand_size_charts = {
+    "MyntraBasic": {
+        "tshirt": {
+            "S": (55, 65),
+            "M": (65, 75),
+            "L": (75, 85),
+            "XL": (85, 100)
+        },
+        "jeans": {
+            "30": (55, 65),
+            "32": (65, 75),
+            "34": (75, 85),
+            "36": (85, 100)
+        }
+    }
+}
+
+
+
+def recommend_size(user: UserProfile) -> RecommendationResponse:
+    chart = brand_size_charts.get(user.brand, {}).get(user.category, {})
+
+    if not chart:
+        return RecommendationResponse(recommended_size="M", confidence=0.5)  # fallback
+
+    bmi = user.weight_kg / ((user.height_cm / 100) ** 2)
+
+    # Rule-based: map BMI to weight-range buckets
+    for size, (low, high) in chart.items():
+        if low <= user.weight_kg < high:
+            # Confidence decreases if BMI is too far from average
+            avg = (low + high) / 2
+            confidence = 1 - abs(user.weight_kg - avg) / (high - low)
+            return RecommendationResponse(recommended_size=size, confidence=round(confidence, 2))
+
+    return RecommendationResponse(recommended_size="M", confidence=0.5)
+
+
+@app.post("/recommend", response_model=RecommendationResponse)
+def recommend_endpoint(user: UserProfile):
+    """
+    Recommend clothing size for a given user profile.
+    """
+    return recommend_size(user)
+
+
+@app.get("/")
+def root():
+    return {"message": "Size/Fit Recommendation Service is running 🚀"}
