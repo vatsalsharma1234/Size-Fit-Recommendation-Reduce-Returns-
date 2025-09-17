@@ -14,6 +14,4 @@ where improving fit reduces product returns and enhances customer experience.
 - Swagger UI auto-docs at `/docs`
 - Container/deployment ready (FastAPI + Uvicorn)
 
----
 
-## 📂 Project Structure
